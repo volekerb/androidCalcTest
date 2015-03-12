@@ -18,7 +18,6 @@ public class CalculatorContentView extends LinearLayout {
 
     public CalculatorContentView(CalculatorPopup calculatorPopup) {
         super(calculatorPopup.getContext());
-
         this.setOrientation(LinearLayout.VERTICAL);
         this.calculatorPopup = calculatorPopup;
         clickListener = new ButtonsClickListener(this);
@@ -80,7 +79,7 @@ public class CalculatorContentView extends LinearLayout {
         params.setMargins(1, 0, 1, 0);
         TextView display = new TextView(this.getContext());
 
-        display.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+        display.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
         display.setText("0");
         display.setTypeface(null, Typeface.BOLD);
         display.setTextSize(18);

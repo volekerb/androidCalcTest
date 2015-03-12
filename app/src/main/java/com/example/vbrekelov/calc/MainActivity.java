@@ -34,9 +34,8 @@ public class MainActivity extends Activity implements OnClickListener {
             TextView textView = new TextView(this);
             textView.setText(x + "");
             textView.setPadding(2, 0, 2, 0);
-            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
             textView.setLayoutParams(params);
-            // set the onClick() method of this class
             textView.setOnClickListener(this);
             // add to linear layout
             contentView.addView(textView);

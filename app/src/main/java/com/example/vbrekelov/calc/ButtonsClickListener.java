@@ -24,6 +24,10 @@ public class ButtonsClickListener implements OnClickListener {
         this.calculatorView = calculatorView;
     }
 
+    private void setDisplayData(){
+        calculatorView.display.setText(displayData);
+    }
+
     @Override
     public void onClick(View view) {
         String tag = view.getTag().toString();
@@ -31,16 +35,16 @@ public class ButtonsClickListener implements OnClickListener {
 
         if (tag.equalsIgnoreCase(CalculatorButton.ADD)) {
             displayData = this.operationClick(view, tag, tempData);
-            this.calculatorView.display.setText(this.displayData);
+            setDisplayData();
         } else if (tag.equalsIgnoreCase(CalculatorButton.SUBTRACT)) {
             displayData = this.operationClick(view, tag, tempData);
-            this.calculatorView.display.setText(this.displayData);
+            setDisplayData();
         } else if (tag.equalsIgnoreCase(CalculatorButton.MUTIPLY)) {
             displayData = this.operationClick(view, tag, tempData);
-            this.calculatorView.display.setText(this.displayData);
+            setDisplayData();
         } else if (tag.equalsIgnoreCase(CalculatorButton.DIVIDE)) {
             displayData = this.operationClick(view, tag, tempData);
-            this.calculatorView.display.setText(this.displayData);
+            setDisplayData();
         } else if (tag.equalsIgnoreCase(CalculatorButton.EQUAL)) {
             isClicked = false;
             this.equalButtonClick(tempData);
@@ -48,7 +52,7 @@ public class ButtonsClickListener implements OnClickListener {
             if (tag.equalsIgnoreCase(CalculatorButton.DOT)) {
                 tempData += ((TextView) view).getText().toString();
                 displayData = tempData;
-                calculatorView.display.setText(displayData);
+                setDisplayData();
             } else {
                 if (tag.equalsIgnoreCase(CalculatorButton.CLEAR)) {
                     isClicked = false;
@@ -57,7 +61,7 @@ public class ButtonsClickListener implements OnClickListener {
                     // *** IF LENGTH IS LESS THAN 0. SET displayData TO 0
                     displayData = tempData.length() <= 0 ? "0" : tempData;
                     // *** SET THE RESULT TO CALCULATOR DISPLAY
-                    calculatorView.display.setText(displayData);
+                    setDisplayData();
                 } else {
                     if (tag.equalsIgnoreCase(CalculatorButton.OK)) {
                         isClicked = false;
@@ -66,7 +70,7 @@ public class ButtonsClickListener implements OnClickListener {
                         // *** NUMBER BUTTON CLICK
                         isClicked = false;
                         displayData = tempData.equalsIgnoreCase("0") ? tag : tempData + tag;
-                        calculatorView.display.setText(displayData);
+                        setDisplayData();
                     }
                 }
             }
