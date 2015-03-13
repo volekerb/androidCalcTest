@@ -15,8 +15,6 @@ public class ButtonsClickListener implements OnClickListener {
 
     boolean isClicked = false;
     String displayData = "0";
-//    int operationClickCount = 0;
-//    String firstOperationClick;
 
     CalculatorContentView calculatorView;
 
@@ -24,7 +22,7 @@ public class ButtonsClickListener implements OnClickListener {
         this.calculatorView = calculatorView;
     }
 
-    private void setDisplayData(){
+    private void setDisplayData() {
         calculatorView.display.setText(displayData);
     }
 
@@ -32,44 +30,30 @@ public class ButtonsClickListener implements OnClickListener {
     public void onClick(View view) {
         String tag = view.getTag().toString();
         String tempData = this.displayData;
-
-        if (tag.equalsIgnoreCase(CalculatorButton.ADD)) {
-            displayData = this.operationClick(view, tag, tempData);
+        if (doesTextContainMainOperation(tag)) {
+            displayData = operationClick(view, tag, tempData);
             setDisplayData();
-        } else if (tag.equalsIgnoreCase(CalculatorButton.SUBTRACT)) {
-            displayData = this.operationClick(view, tag, tempData);
-            setDisplayData();
-        } else if (tag.equalsIgnoreCase(CalculatorButton.MUTIPLY)) {
-            displayData = this.operationClick(view, tag, tempData);
-            setDisplayData();
-        } else if (tag.equalsIgnoreCase(CalculatorButton.DIVIDE)) {
-            displayData = this.operationClick(view, tag, tempData);
-            setDisplayData();
-        } else if (tag.equalsIgnoreCase(CalculatorButton.EQUAL)) {
-            isClicked = false;
-            this.equalButtonClick(tempData);
         } else {
-            if (tag.equalsIgnoreCase(CalculatorButton.DOT)) {
+            if (tag.equalsIgnoreCase(CalculatorButton.EQUAL)) {
+                isClicked = false;
+                equalButtonClick(tempData);
+            } else if (tag.equalsIgnoreCase(CalculatorButton.DOT)) {
                 tempData += ((TextView) view).getText().toString();
                 displayData = tempData;
                 setDisplayData();
             } else {
                 if (tag.equalsIgnoreCase(CalculatorButton.CLEAR)) {
                     isClicked = false;
-                    // *** REMOVE LAST CHARACTER IN tempData
                     tempData = this.removeLastChar(tempData);
-                    // *** IF LENGTH IS LESS THAN 0. SET displayData TO 0
                     displayData = tempData.length() <= 0 ? "0" : tempData;
-                    // *** SET THE RESULT TO CALCULATOR DISPLAY
                     setDisplayData();
                 } else {
                     if (tag.equalsIgnoreCase(CalculatorButton.OK)) {
                         isClicked = false;
                         okButtonClick(tempData);
                     } else {
-                        // *** NUMBER BUTTON CLICK
                         isClicked = false;
-                        displayData = tempData.equalsIgnoreCase("0") ? tag : tempData + tag;
+                        displayData = tempData.equals("0") ? tag : tempData + tag;
                         setDisplayData();
                     }
                 }
@@ -80,17 +64,15 @@ public class ButtonsClickListener implements OnClickListener {
     private void equalButtonClick(String tempData) {
         try {
             String data = tempData.substring(1, tempData.length());
-            // *** GET THE INDEX OF FIRST OPERATION. ADD 1 BECAUSE WE HAVE
-            // REMOVE THE FIRST CHARACTER
-            int indexOfFirstOperation = this.indexOfFirstOperation("[^0-9\\.]", data) + 1;
-            // *** GET THE INDEX OF FIRST OPERATION
-            String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
-            // *** COMPUTE THE RESULT
-            double result = this.compute(firstOperation, tempData);
-            // *** REMOVE UNWANTED DECIMAL PLACES
-            this.displayData = this.removeUnwantedValueInDecimal(result + "");
-            // *** SET THE RESULT TO CALCULATOR DISPLAY
-            this.calculatorView.display.setText(this.displayData + "");
+            int indexOfFirstOperation = indexOfFirstOperation("[^0-9\\.]", data) + 1;
+            try {
+                String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
+                double result = compute(firstOperation, tempData);
+                displayData = removeUnwantedValueInDecimal(result + "");
+            } catch (IndexOutOfBoundsException e) {
+                setDisplayDataAndClose();
+            }
+            calculatorView.display.setText(displayData + "");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -98,37 +80,25 @@ public class ButtonsClickListener implements OnClickListener {
 
     private void okButtonClick(String tempData) {
         try {
-            String data = tempData.length() > 2 ? tempData.substring(1,
-                    tempData.length()) : tempData;
-            // *** GET THE INDEX OF FIRST OPERATION
-            int indexOfFirstOperation = this.indexOfFirstOperation("[^0-9\\.]", data) + 1;
-            if (isFirstOperationTextInBetweenNumber(indexOfFirstOperation, data)) {
-                // *** COMPUTE
-                // *** GET THE INDEX OF FIRST OPERATION
+            String data = tempData.length() > 2 ?
+                    tempData.substring(1, tempData.length()) : tempData;
+            int indexOfFirstOperation = indexOfFirstOperation("[^0-9\\.]", data) + 1;
+
+            if (isFirstOperationTextBetweenNumber(indexOfFirstOperation, data)) {
                 String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
-                // *** COMPUTE THE RESULT
-                double result = this.compute(firstOperation, tempData);
-                // *** REMOVE UNWANTED DECIMAL PLACES
-                this.displayData = this.removeUnwantedValueInDecimal(result + "");
-                // *** UPDATE TEXT OF TEXTVIEW WHERE CLICK HAPPEN
-                ((TextView) this.calculatorView.viewWhereClickHappen).setText(displayData + "");
-                // *** DISMISS CALCULATOR POPUP
-                this.calculatorView.calculatorPopup.dismiss();
+                double result = compute(firstOperation, tempData);
+                displayData = removeUnwantedValueInDecimal(result + "");
+                setDisplayDataAndClose();
             } else {
-                // *** DATA IS A REAL MAY A REAL NUMBER
                 tempData = (isLastTextOperation(tempData) || isLastTextDot(tempData))
                         && tempData.length() > 2 ? removeLastChar(tempData) : tempData;
                 if (isValidNumber(tempData)) {
                     tempData = parseDouble(tempData) + "";
                     tempData = removeUnwantedValueInDecimal(tempData);
-                    this.displayData = tempData;
-                    // *** UPDATE TEXT OF TEXTVIEW WHERE CLICK HAPPEN
-                    ((TextView) this.calculatorView.viewWhereClickHappen).setText(displayData + "");
-                    // *** DISMISS CALCULATOR POPUP
-                    this.calculatorView.calculatorPopup.dismiss();
+                    displayData = tempData;
+                    setDisplayDataAndClose();
                 } else {
-                    Toast.makeText(this.calculatorView.getContext(),
-                            "Not a valid number " + tempData,
+                    Toast.makeText(calculatorView.getContext(), "Not a valid number " + tempData,
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -138,9 +108,14 @@ public class ButtonsClickListener implements OnClickListener {
         }
     }
 
+    private void setDisplayDataAndClose() {
+        ((TextView) calculatorView.viewWhereClickHappen).setText(displayData + "");
+        calculatorView.calculatorPopup.dismiss();
+    }
+
     private String operationClick(View view, String operation, String tempData) {
         try {
-            if (!this.allowToAppendOperationText(true, tempData, operation)) {
+            if (!allowToAppendOperationText(true, tempData, operation)) {
                 Toast.makeText(view.getContext(), "Invalid", Toast.LENGTH_SHORT).show();
                 return "0";
             }
@@ -148,48 +123,34 @@ public class ButtonsClickListener implements OnClickListener {
                     && operation.equalsIgnoreCase(CalculatorButton.SUBTRACT)) {
                 return operation;
             }
-            if (this.isFirstTextNegativeSign(tempData) && tempData.length() <= 1) {
+            if (isFirstTextNegativeSign(tempData) && tempData.length() <= 1) {
                 return tempData;
             }
-            if (!this.doDataContainOperationText(tempData)) {
-                // no it doesn't
+            if (!doesDataContainOperationText(tempData)) {
                 tempData += operation;
                 return tempData;
             }
-
-            // *** APPEND THE operation TO tempData
             tempData += operation;
 
-            // *** REMOVE FIRST CHARACTER IN tempData BECAUSE IT MAY A NEGATIVE value
             String data = tempData.substring(1, tempData.length());
-
-            if (this.doComputeTotal("([^0-9\\.])", data)) {
-                // *** COMPUTE TOTAL
-                // *** GET THE INDEX OF FIRST OPERATION. ADD 1 BECAUSE WE HAVE REMOVED THE FIRST CHARACTER
-                int indexOfFirstOperation = this.indexOfFirstOperation("[^0-9\\.]", data) + 1;
-                // *** GET THE FIRST OPERATION
-                String firstOperation = tempData.charAt(indexOfFirstOperation)
-                        + "";
-                // *** REMOVE LAST CHARACTER IN tempData
-                tempData = this.removeLastChar(tempData);
-                // *** COMPUTE THE RESULT
-                double result = this.compute(firstOperation, tempData);
-                // *** REMOVE UNWANTED DECIMAL VALUE
-                tempData = this.removeUnwantedValueInDecimal(result + "") + operation;
+            if (doComputeTotal("([^0-9\\.])", data)) {
+                int indexOfFirstOperation = indexOfFirstOperation("[^0-9\\.]", data) + 1;
+                String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
+                tempData = removeLastChar(tempData);
+                double result = compute(firstOperation, tempData);
+                tempData = removeUnwantedValueInDecimal(result + "") + operation;
             } else {
-                // *** REPLACE THE OPERATION IN LAST CHAR IN tempData
-                tempData = this.removePreviousOperationText(tempData);
+                tempData = removePreviousOperationText(tempData);
             }
         } catch (Exception e) {
             e.printStackTrace();
             tempData = "";
-            this.calculatorView.display.setText("Error");
+            calculatorView.display.setText("Error");
         }
         return tempData;
     }
 
-    private boolean isFirstOperationTextInBetweenNumber(
-            int indexOfFirstOperation, String tempData) {
+    private boolean isFirstOperationTextBetweenNumber(int indexOfFirstOperation, String tempData) {
         int tempDataLength = tempData.length();
         return indexOfFirstOperation > 1 && indexOfFirstOperation < (tempDataLength);
     }
@@ -206,10 +167,8 @@ public class ButtonsClickListener implements OnClickListener {
     private String removeUnwantedValueInDecimal(String result) {
         String resultTmp = result.substring(result.lastIndexOf("."), result.length());
         if (this.containNumberNotZero("[1-9]", resultTmp)) {
-            // **** OF DECIMAL VALUES CONTAIN ANY NUMBER BETWEEN 1 - 9
             return result;
         } else {
-            // *** IF DECIMAL VALUES CONTAIN ZEROS. REMOVE DECIMAL VALUES
             return result.substring(0, result.lastIndexOf("."));
         }
     }
@@ -222,14 +181,11 @@ public class ButtonsClickListener implements OnClickListener {
         double result = 0;
         if (firstOperation.equalsIgnoreCase(CalculatorButton.ADD)) {
             result = firstNumber + secondNumber;
-        } else if (firstOperation
-                .equalsIgnoreCase(CalculatorButton.SUBTRACT)) {
+        } else if (firstOperation.equalsIgnoreCase(CalculatorButton.SUBTRACT)) {
             result = firstNumber - secondNumber;
-        } else if (firstOperation
-                .equalsIgnoreCase(CalculatorButton.MUTIPLY)) {
+        } else if (firstOperation.equalsIgnoreCase(CalculatorButton.MUTIPLY)) {
             result = firstNumber * secondNumber;
-        } else if (firstOperation
-                .equalsIgnoreCase(CalculatorButton.DIVIDE)) {
+        } else if (firstOperation.equalsIgnoreCase(CalculatorButton.DIVIDE)) {
             result = firstNumber / secondNumber;
         }
         return result;
@@ -252,11 +208,9 @@ public class ButtonsClickListener implements OnClickListener {
             }
             operationCount++;
         }
-        if (operationCount > 1
-                && firstOperationEndIndex < secondOperationStartIndex) {
+        if (operationCount > 1 && firstOperationEndIndex < secondOperationStartIndex) {
             computeTotal = true;
-        } else if (operationCount > 1
-                && firstOperationEndIndex >= secondOperationStartIndex) {
+        } else if (operationCount > 1 && firstOperationEndIndex >= secondOperationStartIndex) {
             computeTotal = false;
         }
         return computeTotal;
@@ -287,17 +241,13 @@ public class ButtonsClickListener implements OnClickListener {
     }
 
     private boolean isFirstTextNegativeSign(String data) {
-        if (data.length() > 0) {
-            if ((data.charAt(0) + "").equalsIgnoreCase(CalculatorButton.SUBTRACT)) {
-                return true;
-            }
-        }
-        return false;
+        return data.length() > 0
+                && (data.charAt(0) + "").equalsIgnoreCase(CalculatorButton.SUBTRACT);
     }
 
     private boolean isLastTextOperation(String data) {
         if (data.length() > 0) {
-            String lastText = data.substring(data.length() - 1, data.length());
+            String lastText = getLastText(data);
             if (lastText.equalsIgnoreCase(CalculatorButton.DOT)) {
                 return true;
             }
@@ -307,35 +257,35 @@ public class ButtonsClickListener implements OnClickListener {
 
     private boolean isLastTextDot(String data) {
         if (data.length() > 0) {
-            String lastText = data.substring(data.length() - 1, data.length());
-            if (lastText.equalsIgnoreCase(CalculatorButton.ADD)
-                    || lastText.equalsIgnoreCase(CalculatorButton.SUBTRACT)
-                    || lastText.equalsIgnoreCase(CalculatorButton.SUBTRACT)
-                    || lastText.equalsIgnoreCase(CalculatorButton.MUTIPLY)) {
-                return true;
-            }
+            String lastText = getLastText(data);
+            return doesTextContainMainOperation(lastText);
         }
         return false;
     }
 
+    private boolean doesTextContainMainOperation(String text) {
+        return text.equalsIgnoreCase(CalculatorButton.ADD)
+                || text.equalsIgnoreCase(CalculatorButton.SUBTRACT)
+                || text.equalsIgnoreCase(CalculatorButton.MUTIPLY)
+                || text.equalsIgnoreCase(CalculatorButton.DIVIDE);
+    }
+
+    private String getLastText(String data) {
+        return data.substring(data.length() - 1, data.length());
+    }
+
     private String removePreviousOperationText(String data) {
-        return data.substring(0, data.length() - 2)
-                + data.substring(data.length() - 1, data.length());
+        return data.substring(0, data.length() - 2) + getLastText(data);
     }
 
     private String removeLastChar(String data) {
         return data.length() > 0 ? data.substring(0, data.length() - 1) : data;
     }
 
-    private boolean doDataContainOperationText(String data) {
+    private boolean doesDataContainOperationText(String data) {
         if (data.length() > 1) {
             String testData = data.substring(1, data.length());
-            if (testData.contains(CalculatorButton.ADD)
-                    || testData.contains(CalculatorButton.SUBTRACT)
-                    || testData.contains(CalculatorButton.MUTIPLY)
-                    || testData.contains(CalculatorButton.DIVIDE)) {
-                return true;
-            }
+            return doesTextContainMainOperation(testData);
         }
         return false;
     }

@@ -6,7 +6,7 @@ import android.view.Window;
 
 public class CalculatorPopup extends Dialog {
 
-    CalculatorContentView calculator;
+    private CalculatorContentView calculator;
 
     public CalculatorPopup(Context context) {
         super(context);

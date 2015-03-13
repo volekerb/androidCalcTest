@@ -59,7 +59,6 @@ public class CalculatorContentView extends LinearLayout {
         }
     }
 
-    // add border to the pop up
     private View border() {
         LinearLayout.LayoutParams params =
                 new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 1);
@@ -70,6 +69,7 @@ public class CalculatorContentView extends LinearLayout {
         return border;
     }
 //TODO: remove magic numbers
+
     /**
      * @return display = the white bar on the calculator where you show the numbers, etc.
      */
@@ -91,7 +91,6 @@ public class CalculatorContentView extends LinearLayout {
 
     public void setViewWhereClickHappen(View viewWhereClickHappen) {
         this.viewWhereClickHappen = viewWhereClickHappen;
-        // SET displayData VALUE
         clickListener.displayData = ((TextView) viewWhereClickHappen).getText().toString();
         this.display.setText(clickListener.displayData);
     }
