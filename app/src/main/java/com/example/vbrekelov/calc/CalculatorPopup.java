@@ -10,7 +10,7 @@ public class CalculatorPopup extends Dialog {
 
     public CalculatorPopup(Context context) {
         super(context);
-        this.calculator = new CalculatorContentView(this);
+        this.calculator = new CalculatorContentView(context, this);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.setContentView(calculator);
     }

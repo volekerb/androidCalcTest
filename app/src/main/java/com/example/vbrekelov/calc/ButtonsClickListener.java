@@ -13,9 +13,8 @@ import static java.lang.Double.parseDouble;
 
 public class ButtonsClickListener implements OnClickListener {
 
-    boolean isClicked = false;
+    public static final String OPERATION_PATTERN = "[^0-9\\.]";
     String displayData = "0";
-
     CalculatorContentView calculatorView;
 
     public ButtonsClickListener(CalculatorContentView calculatorView) {
@@ -35,7 +34,6 @@ public class ButtonsClickListener implements OnClickListener {
             setDisplayData();
         } else {
             if (tag.equalsIgnoreCase(CalculatorButton.EQUAL)) {
-                isClicked = false;
                 equalButtonClick(tempData);
             } else if (tag.equalsIgnoreCase(CalculatorButton.DOT)) {
                 tempData += ((TextView) view).getText().toString();
@@ -43,16 +41,13 @@ public class ButtonsClickListener implements OnClickListener {
                 setDisplayData();
             } else {
                 if (tag.equalsIgnoreCase(CalculatorButton.CLEAR)) {
-                    isClicked = false;
                     tempData = this.removeLastChar(tempData);
                     displayData = tempData.length() <= 0 ? "0" : tempData;
                     setDisplayData();
                 } else {
                     if (tag.equalsIgnoreCase(CalculatorButton.OK)) {
-                        isClicked = false;
                         okButtonClick(tempData);
                     } else {
-                        isClicked = false;
                         displayData = tempData.equals("0") ? tag : tempData + tag;
                         setDisplayData();
                     }
@@ -64,11 +59,11 @@ public class ButtonsClickListener implements OnClickListener {
     private void equalButtonClick(String tempData) {
         try {
             String data = tempData.substring(1, tempData.length());
-            int indexOfFirstOperation = indexOfFirstOperation("[^0-9\\.]", data) + 1;
+            int indexOfFirstOperation = indexOfFirstOperation(OPERATION_PATTERN, data) + 1;
             try {
                 String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
                 double result = compute(firstOperation, tempData);
-                displayData = removeUnwantedValueInDecimal(result + "");
+                displayData = removeUnwantedValueInDecimal(Double.toString(result));
             } catch (IndexOutOfBoundsException e) {
                 setDisplayDataAndClose();
             }
@@ -82,7 +77,7 @@ public class ButtonsClickListener implements OnClickListener {
         try {
             String data = tempData.length() > 2 ?
                     tempData.substring(1, tempData.length()) : tempData;
-            int indexOfFirstOperation = indexOfFirstOperation("[^0-9\\.]", data) + 1;
+            int indexOfFirstOperation = indexOfFirstOperation(OPERATION_PATTERN, data) + 1;
 
             if (isFirstOperationTextBetweenNumber(indexOfFirstOperation, data)) {
                 String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
@@ -134,7 +129,7 @@ public class ButtonsClickListener implements OnClickListener {
 
             String data = tempData.substring(1, tempData.length());
             if (doComputeTotal("([^0-9\\.])", data)) {
-                int indexOfFirstOperation = indexOfFirstOperation("[^0-9\\.]", data) + 1;
+                int indexOfFirstOperation = indexOfFirstOperation(OPERATION_PATTERN, data) + 1;
                 String firstOperation = tempData.charAt(indexOfFirstOperation) + "";
                 tempData = removeLastChar(tempData);
                 double result = compute(firstOperation, tempData);

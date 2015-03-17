@@ -10,6 +10,10 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
+    public static final String DEFAULT_TEXT = "0";
+    public static final int WIDTH_IN_MEDIUM_DENSITY = 100;
+    public static final int HEIGHT_IN_MEDIUM_DENSITY = 50;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,12 +26,12 @@ public class MainActivity extends Activity implements OnClickListener {
         LinearLayout contentView = new LinearLayout(this);
         contentView.setOrientation(LinearLayout.VERTICAL);
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    viewSize.computeWidth(100, this),
-                    viewSize.computeHeight(50, this)
+                    viewSize.computeWidth(WIDTH_IN_MEDIUM_DENSITY, this),
+                    viewSize.computeHeight(HEIGHT_IN_MEDIUM_DENSITY, this)
             );
             params.setMargins(5, 5, 0, 0);
             TextView textView = new TextView(this);
-            textView.setText("0");
+            textView.setText(DEFAULT_TEXT);
             textView.setPadding(2, 0, 2, 0);
             textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
             textView.setLayoutParams(params);

@@ -11,7 +11,6 @@ public class CalculatorButton {
     final static String CLEAR = "Clr";
     final static String OK = "OK";
 
-    //used for constructing the calculator ui
     public static String BUTTONS[][] = {
             {CLEAR, OK},
             {"7", "8", "9", MUTIPLY},
